@@ -1,3 +1,4 @@
+from datetime import date
 from datetime import datetime
 import time
 import random
@@ -10,19 +11,21 @@ from pyarrow.parquet import write_table
 
 
 # Channel name variable
-CHANNEL_NAME = str(input("\n◽ Enter a channel name to scrape, use the XXXX part in 'https://web.telegram.org/k/#@XXXX': ").strip()) # use the XXXX part in 'https://web.telegram.org/k/#@XXXX'
+CHANNEL_NAME = str(input("\n🔸 Enter a channel name to scrape, use the XXXX part in 'https://web.telegram.org/k/#@XXXX': ").strip()) # use the XXXX part in 'https://web.telegram.org/k/#@XXXX'
 
 # Check for input
 if len(CHANNEL_NAME.strip()) == 0 :
         exit('\n🔴 A channel name was not provided. Exiting program.')
 
-# Date variables 
-START_YEAR = int(input("◽ Enter the year when the scraping should start, default '2024': ").strip() or str(datetime.today().year))
-START_MONTH = int(input("◽ Enter the month when the scraping should start, default '01': ").strip() or "01")
-START_DAY = int(input("◽ Enter the day when the scraping should start, default '01': ").strip() or "01")
+# Default date values
+_default_start = f"{datetime.today().year}-01-01"
+_default_finish = f"{datetime.today().year}-12-31"
 
 # Lower date boundary variable. Posts before it are not included
-START_DATE = f"{START_YEAR}-{START_MONTH}-{START_DAY}" # year, month, day
+START_DATE = str(input("🔸 Enter the first date to begin scraping from, in YYYY-MM-DD format (beginning of the current year by default): ").strip() or _default_start)  # year, month, day
+
+# Upper date boundary variable. Posts after it are not included
+FINISH_DATE = str(input("🔸 Enter the last date to scrape, in YYYY-MM-DD format (end of the current year by default): ").strip() or _default_finish)  # year, month, day
 
 # Maximum delay between requests
 MAX_SLEEP = 0.1 # seconds
@@ -31,7 +34,7 @@ MAX_SLEEP = 0.1 # seconds
 VERBOSE = False # False by default
 
 
-def validate_choices():
+def validate_choice():
     """
     This function validates user input to confirm their choice before proceeding with scraping posts.
 
@@ -39,7 +42,7 @@ def validate_choices():
         None
     """
     
-    print(f"\nYou are about to scrape all posts from {CHANNEL_NAME} starting from {START_DATE}.")
+    print(f"\nYou are about to scrape all {CHANNEL_NAME} posts from {START_DATE} to {FINISH_DATE}.")
     choice = str(input('🔸 Are you sure you want to continue? y / n: ')).lower()
     
     if choice == 'n':
@@ -50,16 +53,19 @@ def validate_choices():
         exit('\n🔴 Received an invalid response. Exiting program.')
 
 
-def scrape_channel(channel_name=CHANNEL_NAME, start_date=START_DATE, max_sleep=MAX_SLEEP, verbose=VERBOSE):
+def scrape_channel(channel_name=CHANNEL_NAME, start_date=START_DATE, finish_date=FINISH_DATE, max_sleep=MAX_SLEEP, verbose=VERBOSE):
     """
-    This function scrapes a specified Telegram channel for messages.
+    This function scrapes a specified Telegram channel for posts.
 
     Parameters:
     - channel_name (str): The name of the Telegram channel to scrape.
       The default value is None.
 
-    - start_date (str): The date from which to start scraping messages. 
-      The date should be in the format 'YYYY-MM-DD'. The default value is '2021-01-01'.
+    - start_date (str): The date from which to start scraping posts. 
+      The date should be in the format 'YYYY-MM-DD'.
+
+    - finish_date (str): The date up to which (including it) the posts will be scraped. 
+      The date should be in the format 'YYYY-MM-DD'.
 
     - max_sleep (int): The maximum number of seconds to wait between requests to avoid
       overloading the server or getting blocked. The function will wait for a random 
@@ -70,7 +76,7 @@ def scrape_channel(channel_name=CHANNEL_NAME, start_date=START_DATE, max_sleep=M
       If False, the function will run silently. The default value is False.
 
     Returns:
-    - This function returns a list of messages from the specified Telegram channel.
+    - This function returns a list of posts from the specified Telegram channel.
       Each message is represented as a dictionary with keys for different attributes 
       of the message (post_id, date, content).
     """
@@ -84,7 +90,9 @@ def scrape_channel(channel_name=CHANNEL_NAME, start_date=START_DATE, max_sleep=M
     raw = []
 
     # Convert date string to datetime object
-    datetime_object = datetime.strptime(start_date, '%Y-%m-%d')
+    start_datetime_object = datetime.strptime(start_date, '%Y-%m-%d')
+    finish_datetime_object = datetime.strptime(finish_date, '%Y-%m-%d')
+
 
     # Start the timer
     start_time = time.time()  
@@ -93,20 +101,19 @@ def scrape_channel(channel_name=CHANNEL_NAME, start_date=START_DATE, max_sleep=M
     # Iterate over posts
     for i, post in enumerate(channel.get_items()):
 
-        # Check if post is not older than a date threshold
-        if post.date.date() >= datetime_object.date():
+        # Check the post against the dates thresholds
+        if post.date.date() >= start_datetime_object.date() and post.date.date() <= finish_datetime_object.date():
 
-            # Print out contents of the first post
+            # Display contents of the first post
             if i == 0:
-                print('🔸 Example of a Telegram post:')
+                print('🔸 Output sample:')
                 print(f"◻️ Post #{post.url.split('/')[-1]}:")
                 print(f"◻️ URL: {post.url}")
                 print(f"◻️ Date: {post.date}")
-                print(f"◻️ Content: {post.content}")
-                print('...\n')
-                print(f"⏰ Scraping posts after {start_date} with random delay up to {max_sleep} seconds...\n")
+                print(f"◻️ Content: {post.content[:50]}...")
+                print(f"\n⏰ Scraping posts between {start_date} and {finish_date} with random delay up to {max_sleep} seconds...\n")
 
-            # Append posts to the list if they satisfy the 'date' condition        
+            # Append posts to the list if they satisfy the conditions        
             raw.append({
                 'post_id': post.url.split('/')[-1], # last string in a split url is basically a post number (id)
                 'post_url': post.url,
@@ -161,7 +168,7 @@ def main():
     """
     This function converts raw list of dictionaries to a
     pyarrow table and then writes it to the compressed parquet file.
-    Additionaly, it adds START_DATE year value to the output file name.
+    Additionaly, it creates a custom output file name based on the input parameters.
     
     Returns:
         None
@@ -170,13 +177,10 @@ def main():
     # Write scraped data into pyarrow table
     table = Table.from_pylist(scrape_channel())
 
-    print(f"\n🔸 The dataset has: {table.shape[0]} rows and {table.shape[1]} columns")
-
-    # Extract the year from START_DATE
-    filename_year = datetime.strptime(START_DATE, '%Y-%m-%d').year
+    print(f"\n🔹 The dataset has {table.shape[0]} rows and {table.shape[1]} columns")
     
-    # Paste year into the output filename
-    output_name = f"telegram-posts-{filename_year}-{datetime.now().year - filename_year}y.parquet.gzip"
+    # Create an output file name
+    output_name = f"tg-posts-{CHANNEL_NAME}-{START_DATE}-{FINISH_DATE}.parquet.gzip"
     
     # Export pyarrow table as a compressed parquet file
     write_table(table, output_name)
@@ -185,5 +189,5 @@ def main():
 
 
 if __name__ == '__main__':
-    validate_choices()
+    validate_choice()
     main()
