@@ -1,19 +1,23 @@
-from datetime import date
 from datetime import datetime
 import time
 import random
 from sys import exit
 
-import pandas as pd
-
 import snscrape.modules.telegram as tg
+
+from pyarrow import Table 
+from pyarrow.parquet import write_table
 
 
 # Channel name variable
 CHANNEL_NAME = str(input("\n◽ Enter a channel name to scrape, use the XXXX part in 'https://web.telegram.org/k/#@XXXX': ").strip()) # use the XXXX part in 'https://web.telegram.org/k/#@XXXX'
 
+# Check for input
+if len(CHANNEL_NAME.strip()) == 0 :
+        exit('\n🔴 A channel name was not provided. Exiting program.')
+
 # Date variables 
-START_YEAR = int(input('◽ Enter the year when the scraping should start: ').strip() or "2024")
+START_YEAR = int(input("◽ Enter the year when the scraping should start, default '2024': ").strip() or str(datetime.today().year))
 START_MONTH = int(input("◽ Enter the month when the scraping should start, default '01': ").strip() or "01")
 START_DAY = int(input("◽ Enter the day when the scraping should start, default '01': ").strip() or "01")
 
@@ -34,6 +38,7 @@ def validate_choices():
     Returns: 
         None
     """
+    
     print(f"\nYou are about to scrape all posts from {CHANNEL_NAME} starting from {START_DATE}.")
     choice = str(input('🔸 Are you sure you want to continue? y / n: ')).lower()
     
@@ -72,8 +77,6 @@ def scrape_channel(channel_name=CHANNEL_NAME, start_date=START_DATE, max_sleep=M
     # Display target channel name
     print(f"\n🧲 Target Telegram channel >>> '{channel_name}'\n")
 
-
-    
     # Create a Telegram channel scraper
     channel = tg.TelegramChannelScraper(channel_name)
     
@@ -157,11 +160,17 @@ def scrape_channel(channel_name=CHANNEL_NAME, start_date=START_DATE, max_sleep=M
 def main():
     """
     This function converts raw list of dictionaries to a
-    DataFrame and then writes it to the compressed parquet file.
+    pyarrow table and then writes it to the compressed parquet file.
     Additionaly, it adds START_DATE year value to the output file name.
+    
+    Returns:
+        None
     """
-    df = pd.DataFrame(scrape_channel())
-    print(f"\n🔸 The shape of the final DataFrame: {df.shape}")
+    
+    # Write scraped data into pyarrow table
+    table = Table.from_pylist(scrape_channel())
+
+    print(f"\n🔸 The dataset has: {table.shape[0]} rows and {table.shape[1]} columns")
 
     # Extract the year from START_DATE
     filename_year = datetime.strptime(START_DATE, '%Y-%m-%d').year
@@ -169,13 +178,9 @@ def main():
     # Paste year into the output filename
     output_name = f"telegram-posts-{filename_year}-{datetime.now().year - filename_year}y.parquet.gzip"
     
-    # Write DataFrame to a compressed parquet file
-    df.to_parquet(
-        output_name, 
-        engine='pyarrow', 
-        compression='gzip', 
-        index=False
-        )
+    # Export pyarrow table as a compressed parquet file
+    write_table(table, output_name)
+
     print(f"\n🔽 Saved locally as '{output_name}'")
 
 
