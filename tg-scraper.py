@@ -30,8 +30,9 @@ FINISH_DATE = str(input("🔸 Enter the last date to scrape, in YYYY-MM-DD forma
 # Maximum delay between requests
 MAX_SLEEP = 0.1 # seconds
 
-# Print the elapsed time at each iteration
-VERBOSE = False # False by default
+# Include posts contents in the output file
+VERBOSE = True # True by default
+VERBOSE = str(input('🔸 Do you want to include posts contents in the output file? y / n: ').strip() or 'y')
 
 
 def validate_choice():
@@ -72,8 +73,8 @@ def scrape_channel(channel_name=CHANNEL_NAME, start_date=START_DATE, finish_date
       number of seconds between 0 and max_sleep before making each request. 
       The default value is 0.2.
 
-    - verbose (bool): If True, the function will print out the elapsed time at each iteration.
-      If False, the function will run silently. The default value is False.
+    - verbose (bool): If False, the function will substitute post content with '#####'.
+      The default value is True.
 
     Returns:
     - This function returns a list of posts from the specified Telegram channel.
@@ -113,12 +114,20 @@ def scrape_channel(channel_name=CHANNEL_NAME, start_date=START_DATE, finish_date
                 print(f"◻️ Content: {post.content[:50]}...")
                 print(f"\n⏰ Scraping posts between {start_date} and {finish_date} with random delay up to {max_sleep} seconds...\n")
 
+            # Mask post contents in the output file if False (True by default)
+            if verbose == 'y':  
+                content = post.content
+            elif verbose == 'n':
+                content = '#####'
+            else:
+                exit('\n🔴 Received an invalid response. Exiting program.')
+
             # Append posts to the list if they satisfy the conditions        
             raw.append({
                 'post_id': post.url.split('/')[-1], # last string in a split url is basically a post number (id)
                 'post_url': post.url,
                 'date': post.date,
-                'content': post.content
+                'content': content
                 })
 
             # Print elapsed time at each iteration
@@ -126,10 +135,6 @@ def scrape_channel(channel_name=CHANNEL_NAME, start_date=START_DATE, finish_date
                 
             # Writes the time when the post was stored relative to the start time of the loop
             elapsed_time_list.append(check_time)
-
-            # False by default
-            if verbose:
-                print(f"Elapsed time: {check_time:.0f} seconds")
             
             # Introduce a random delay
             time.sleep(random.uniform(0, max_sleep))  # Sleep for a random time between 0 and MAX_SLEEP seconds
