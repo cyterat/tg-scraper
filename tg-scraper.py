@@ -28,7 +28,7 @@ START_DATE = str(input("🔸 Enter the first date to begin scraping from, in YYY
 FINISH_DATE = str(input("🔸 Enter the last date to scrape, in YYYY-MM-DD format (end of the current year by default): ").strip() or _default_finish)  # year, month, day
 
 # Include posts contents in the output file if 'y', else mask posts with '#####'
-VERBOSE = str(input('🔸 Do you want to include posts contents in the output file? y / n: ').strip() or 'y')
+VERBOSE = str(input("🔸 Do you want to include posts contents in the output file? y / n ('yes' by default): ").strip() or 'y')
 
 # Maximum delay between requests
 MAX_SLEEP = 0.1 # seconds
