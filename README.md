@@ -10,8 +10,8 @@ The script also has an additional option to mask posts contents in the output fi
 
 <sub> Script run example </sub>
 
-![](script-run-example.png)
+![](assets/script-run-example.png)
 
 <sub> Script output file example </sub>
 
-![](script-output-file-example.png)
+![](assets/script-output-file-example.png)
