@@ -3,11 +3,16 @@ from datetime import datetime
 import time
 import random
 from sys import exit
+import os
 
 import snscrape.modules.telegram as tg
 
 from pyarrow import Table 
 from pyarrow.parquet import write_table
+
+# Check if 'data' folder exists, else create one
+if not os.path.exists('data'):
+   os.makedirs('data')
 
 
 # Channel name variable
@@ -186,9 +191,9 @@ def main():
     output_name = f"tg-posts-{CHANNEL_NAME}-{START_DATE}-{FINISH_DATE}.parquet.gzip"
     
     # Export pyarrow table as a compressed parquet file
-    write_table(table, output_name)
+    write_table(table, os.path.join('data', output_name))
 
-    print(f"\n🔽 Saved locally as '{output_name}'")
+    print(f"\n🔽 Saved in 'data' folder as '{output_name}'")
 
 
 if __name__ == '__main__':
