@@ -193,7 +193,7 @@ def main():
     # Export pyarrow table as a compressed parquet file
     write_table(table, os.path.join('data', output_name))
 
-    print(f"\n🔽 Saved in 'data' folder as '{output_name}'")
+    print(f"\n🔽 Dataset saved in 'data' folder as '{output_name}'")
 
 
 if __name__ == '__main__':
