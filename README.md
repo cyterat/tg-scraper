@@ -7,6 +7,7 @@
 A standalone application for a telegram channel posts scraping, built on top of a [`tg-scraper.py`](#2-script). The output is produced in a `.parquet.gzip` format.
 
 <sub>Application window</sub>
+
 ![](assets/app-window.png)
 
 ## 2. Script
@@ -18,7 +19,9 @@ Upon running the script will ask for the `XXXX` part in `https://web.telegram.or
 The script also has an additional option to mask posts contents in the output file with `#####`, this can be done by chosing the respective option when prompted.
 
 <sub>Script run example</sub>
+
 ![](assets/script-run-example.png)
 
 <sub>Script output file example</sub>
+
 ![](assets/script-output-file-example.png)
