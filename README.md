@@ -6,14 +6,16 @@
 
 A standalone application for a telegram channel posts scraping, built on top of a [`tg-scraper.py`](#2-script). The output is produced in a `.parquet.gzip` format.
 
-<sub>Application window</sub>
-
-### 1.1 How to use the app:
+### How to use:
   1. Download [tg-scraper-app.exe](https://github.com/cyterat/tg-scraper/blob/main/tg-scraper-app.exe).
   2. Run the application.
   3. Now its ready to use.
 
+<sub>Application window</sub>
+
 ![](assets/app-window.png)
+
+***
 
 ## 2. Script
 
