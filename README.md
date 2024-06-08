@@ -8,6 +8,11 @@ A standalone application for a telegram channel posts scraping, built on top of 
 
 <sub>Application window</sub>
 
+### 1.1 How to use the app:
+  1. Download [tg-scraper-app.exe](https://github.com/cyterat/tg-scraper/blob/main/tg-scraper-app.exe).
+  2. Run the application.
+  3. Now its ready to use.
+
 ![](assets/app-window.png)
 
 ## 2. Script
