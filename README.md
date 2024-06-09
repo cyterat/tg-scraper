@@ -67,7 +67,9 @@ Include post contents? (y/n): y
 
 #### Script Output Example
 
-The output file name is automatically generated: `tg-posts` + `[channel name]` + `[start date]` + `[end date]` + `.parquet.gzip`. It will be saved in the `data` folder (in a current directory)  as a compressed parquet file with the following structure:
+The output file name is automatically generated: `tg-posts` + `[channel name]` + `[start date]` + `[end date]` + `.parquet.gzip`. 
+
+It will be saved in the `data` folder (in a current directory)  as a compressed parquet file with the following structure:
 
 | post_id |      post_url      |         date        |    content    |
 | ------- | ------------------ | ------------------- | ------------- |
@@ -75,7 +77,7 @@ The output file name is automatically generated: `tg-posts` + `[channel name]` +
 
 ![](assets/script-output-file-example.png)
 
-***
+---
 
 ## Requirements
 
