@@ -19,18 +19,19 @@ __Important:__ most of the GUI code has been generated using Chat GPT
 
 ## 1. Application
 
-The standalone application provides an easy-to-use GUI for scraping posts from a Telegram channel.
+The standalone application provides an easy-to-use GUI for scraping posts from a Telegram channel. It was build on top of [this](#2-script) script, and converted into an executable file using `auto-py-to-exe`.
 
 ### How to Use
 
-1. __Download__: [Telegram Posts Scraper.exe](#)
+1. __Download__: [Telegram Posts Scraper.exe](https://github.com/cyterat/tg-scraper/blob/main/Telegram%20Posts%20Scraper.exe)
 2. __Run the Application__: Double-click the downloaded executable file.
+3. __Wait:__ It might take a few seconds to start up.
 3. __Input Details__: Enter the channel details and date range as prompted.
 4. __Scrape__: Click the "Start Scraping" button to begin.
 
 ### Screenshots
 
-![Application Window](assets/app-window.png) <!-- Add the actual path to your screenshot -->
+![Application Window](assets/app-window.png)
 
 ---
 
@@ -67,7 +68,7 @@ Include post contents? (y/n): y
 
 #### Script Output Example
 
-The output file name is automatically generated: `tg-posts` + `[channel name]` + `[start date]` + `[end date]` + `.parquet.gzip`. 
+The output file name is automatically generated: `tg-posts` + `[channel name]` + `[start date]` + `[end date]` + `.parquet.gzip`.
 
 It will be saved in the `data` folder (in a current directory)  as a compressed parquet file with the following structure:
 
@@ -75,14 +76,16 @@ It will be saved in the `data` folder (in a current directory)  as a compressed 
 | ------- | ------------------ | ------------------- | ------------- |
 | 12345   | <https://t.me/12345> | 2023-01-01 12:00:00 | Lorem Ipsum  |
 
-![](assets/script-output-file-example.png)
+The excluded (masked) post contents, if a respective option is chosen, will be replaced with `#####`:
 
----
+| post_id |      post_url      |         date        |    content    |
+| ------- | ------------------ | ------------------- | ------------- |
+| 12345   | <https://t.me/12345> | 2023-01-01 12:00:00 | #####  |
 
-## Requirements
+#### Script Requirements
 
 - Python 3.10
-- Required Python libraries: `snscrape`, `pyarrow`, `PyQt5`, `auto-py-to-exe`
+- Required Python libraries: `snscrape`, `pyarrow`, `PyQt5`
 
 Install dependencies using:
 
